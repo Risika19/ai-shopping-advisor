@@ -165,26 +165,6 @@ http://127.0.0.1:8000
 
 ---
 
-# 📸 Screenshots
-
-> Add screenshots of your project here after deployment.
-
-- 🏠 Home Page
-- 🤖 AI Chatbot
-- 🛍️ Product Recommendation
-- 📊 Product Comparison
-- 👤 Dashboard
-- 💳 Checkout
-
----
-
-# 🌐 Live Demo
-
-🚀 Coming Soon
-
-*(Add your Render URL after deployment.)*
-
----
 
 # 🎯 Future Improvements
 
