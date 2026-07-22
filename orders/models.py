@@ -54,9 +54,12 @@ class Wishlist(models.Model):
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('COD', 'Cash on Delivery'),
-        ('RAZORPAY', 'Razorpay'),
-        ('CARD', 'Credit/Debit Card'),
         ('UPI', 'UPI Payment'),
+        ('CARD', 'Credit Card'),
+        ('DEBIT', 'Debit Card'),
+        ('NETBANKING', 'Net Banking'),
+        ('WALLET', 'Wallet'),
+        ('RAZORPAY', 'Razorpay'),
     ]
     PAYMENT_STATUS_CHOICES = [
         ('PENDING', 'Pending'),

@@ -59,34 +59,69 @@
                 <div class="glass-card p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-credit-card-2-front"></i> Payment Method</h5>
                     <div class="row g-3">
-                        {% for radio in form.payment_method %}
                         <div class="col-md-6">
-                            <div class="form-check payment-option">
-                                {{ radio.tag }}
-                                <label class="form-check-label glass-card d-block p-3 text-center" for="{{ radio.id_for_label }}">
-                                    {% if radio.choice_value == 'COD' %}
-                                    <i class="bi bi-cash display-6 d-block mb-1"></i>
-                                    <strong>Cash on Delivery</strong>
-                                    <small class="d-block text-muted">Pay when you receive</small>
-                                    {% elif radio.choice_value == 'RAZORPAY' %}
-                                    <i class="bi bi-credit-card display-6 d-block mb-1"></i>
-                                    <strong>Razorpay</strong>
-                                    <small class="d-block text-muted">Card / UPI / Net Banking</small>
-                                    {% elif radio.choice_value == 'CARD' %}
-                                    <i class="bi bi-credit-card-2-front display-6 d-block mb-1"></i>
-                                    <strong>Credit / Debit Card</strong>
-                                    <small class="d-block text-muted">Visa, Mastercard, RuPay</small>
-                                    {% elif radio.choice_value == 'UPI' %}
-                                    <i class="bi bi-phone display-6 d-block mb-1"></i>
-                                    <strong>UPI Payment</strong>
-                                    <small class="d-block text-muted">Google Pay, PhonePe, Paytm</small>
-                                    {% endif %}
+                            <div class="payment-option">
+                                <input type="radio" id="pay_cod" name="payment_method" value="COD" class="payment-radio">
+                                <label for="pay_cod" class="payment-card">
+                                    <i class="bi bi-cash-stack payment-icon"></i>
+                                    <span class="payment-name">Cash on Delivery</span>
+                                    <span class="payment-desc">Pay when your order arrives</span>
                                 </label>
                             </div>
                         </div>
-                        {% endfor %}
-                        {% if form.payment_method.errors %}<div class="text-danger small">{{ form.payment_method.errors.0 }}</div>{% endif %}
+                        <div class="col-md-6">
+                            <div class="payment-option">
+                                <input type="radio" id="pay_upi" name="payment_method" value="UPI" class="payment-radio">
+                                <label for="pay_upi" class="payment-card">
+                                    <i class="bi bi-phone payment-icon"></i>
+                                    <span class="payment-name">UPI</span>
+                                    <span class="payment-desc">Google Pay, PhonePe, Paytm</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="payment-option">
+                                <input type="radio" id="pay_card" name="payment_method" value="CARD" class="payment-radio">
+                                <label for="pay_card" class="payment-card">
+                                    <i class="bi bi-credit-card-2-front payment-icon"></i>
+                                    <span class="payment-name">Credit Card</span>
+                                    <span class="payment-desc">Visa, Mastercard, RuPay</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="payment-option">
+                                <input type="radio" id="pay_debit" name="payment_method" value="DEBIT" class="payment-radio">
+                                <label for="pay_debit" class="payment-card">
+                                    <i class="bi bi-credit-card payment-icon"></i>
+                                    <span class="payment-name">Debit Card</span>
+                                    <span class="payment-desc">Direct bank debit</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="payment-option">
+                                <input type="radio" id="pay_netbanking" name="payment_method" value="NETBANKING" class="payment-radio">
+                                <label for="pay_netbanking" class="payment-card">
+                                    <i class="bi bi-bank payment-icon"></i>
+                                    <span class="payment-name">Net Banking</span>
+                                    <span class="payment-desc">All major banks</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="payment-option">
+                                <input type="radio" id="pay_wallet" name="payment_method" value="WALLET" class="payment-radio">
+                                <label for="pay_wallet" class="payment-card">
+                                    <i class="bi bi-wallet2 payment-icon"></i>
+                                    <span class="payment-name">Wallet</span>
+                                    <span class="payment-desc">Paytm, Amazon Pay</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
+                    {% if form.payment_method.errors %}<div class="text-danger small mt-2">{{ form.payment_method.errors.0 }}</div>{% endif %}
+                    <div id="paymentError" class="text-danger small mt-2" style="display:none;">Please select a payment method</div>
                 </div>
             </form>
         </div>
@@ -129,21 +164,73 @@
 </div>
 
 <style>
-.payment-option input[type="radio"] { display: none; }
-.payment-option input[type="radio"]:checked + label {
-    border-color: var(--accent-1) !important;
-    background: rgba(108,99,255,0.1) !important;
-    box-shadow: var(--shadow-glow);
-}
-.payment-option label {
+.payment-radio { display: none; }
+
+.payment-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.25rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(108,99,255,0.05), rgba(255,107,157,0.03));
     cursor: pointer;
-    border: 2px solid var(--glass-border) !important;
-    border-radius: var(--radius-md);
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-height: 130px;
 }
-.payment-option label:hover {
-    border-color: var(--accent-1) !important;
+
+.payment-card:hover {
+    border-color: rgba(108, 99, 255, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(108, 99, 255, 0.15);
+    background: linear-gradient(145deg, rgba(108,99,255,0.1), rgba(255,107,157,0.05));
+}
+
+.payment-radio:checked + .payment-card {
+    border-color: #6c63ff;
+    background: linear-gradient(145deg, rgba(108,99,255,0.15), rgba(255,107,157,0.08));
+    box-shadow: 0 0 30px rgba(108, 99, 255, 0.2);
     transform: translateY(-2px);
 }
+
+.payment-radio:checked + .payment-card .payment-icon {
+    color: #6c63ff;
+    transform: scale(1.1);
+}
+
+.payment-icon {
+    font-size: 2rem;
+    color: #a0a0b8;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.payment-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.payment-desc {
+    font-size: 0.78rem;
+    color: #6c6c8a;
+    line-height: 1.3;
+}
 </style>
+
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    var selected = document.querySelector('input[name="payment_method"]:checked');
+    var errorDiv = document.getElementById('paymentError');
+    if (!selected) {
+        e.preventDefault();
+        errorDiv.style.display = 'block';
+        return false;
+    } else {
+        errorDiv.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

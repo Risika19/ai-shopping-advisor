@@ -1,10 +1,10 @@
 # AI Shopping Advisor
 
-An intelligent e-commerce product recommendation system built with Django, Machine Learning, and OpenAI.
+An intelligent e-commerce product recommendation system built with Django, Machine Learning, and AI.
 
 ## Features
 
-- **AI Shopping Assistant** — Natural language chat powered by OpenAI GPT-4o-mini. Ask "I need a laptop under ₹60,000" and get personalized recommendations.
+- **AI Shopping Assistant** — Natural language chat powered by AI. Ask "I need a laptop under ₹60,000" and get personalized recommendations.
 - **Smart Recommendations** — Content-based filtering engine using TF-IDF vectorization and Cosine Similarity (scikit-learn).
 - **Product Catalog** — Browse 80+ products across Laptops, Mobiles, Headphones, and Smartwatches with search, category/brand/price filters.
 - **Side-by-Side Comparison** — Compare up to 4 products on all specs (Price, RAM, Storage, Processor, Battery, Display, Camera, Rating).
@@ -21,7 +21,7 @@ An intelligent e-commerce product recommendation system built with Django, Machi
 | Database | SQLite |
 | ML/AI | scikit-learn (TF-IDF, Cosine Similarity), Pandas, NumPy |
 | NLP | TextBlob, spaCy, NLTK |
-| AI Chat | OpenAI GPT-4o-mini |
+| AI Chat | AI-powered chat |
 | Storage | python-dotenv for env vars |
 
 ## Project Structure
@@ -57,10 +57,10 @@ ai_shopping_advisor/
 │   ├── utils.py           # TF-IDF + Cosine Similarity engine
 │   ├── views.py           # recommend()
 │   └── urls.py
-├── chatbot/               # OpenAI-powered chat
+├── chatbot/               # AI-powered chat
 │   ├── templates/chatbot/
 │   │   └── chatbot.html
-│   ├── utils.py           # OpenAI API integration
+│   ├── utils.py           # AI integration
 │   ├── views.py           # chatbot_view()
 │   └── urls.py
 ├── dashboard/             # User dashboard
@@ -111,7 +111,6 @@ Create `.env` file in the root directory:
 ```env
 SECRET_KEY=django-insecure-your-secret-key
 DEBUG=True
-OPENAI_API_KEY=sk-your-openai-api-key
 ```
 
 ### 3. Load Data & Run
@@ -148,15 +147,13 @@ Visit `http://127.0.0.1:8000`
 - Returns `polarity` (-1 to 1) and `subjectivity` (0 to 1)
 - Thresholds: > 0.2 = Positive, < -0.2 = Negative, else Neutral
 
-## API Integration
+## AI Integration
 
-### OpenAI (`chatbot/utils.py`)
-- Uses `openai.OpenAI()` client (latest SDK v2.x)
-- Model: `gpt-4o-mini` (fast, cost-effective)
-- System prompt includes product database context (first 30 products)
-- Temperature 0.7 for balanced creativity
-- Max 500 tokens per response
-- Error handling for missing/invalid API keys
+### AI Chat (`chatbot/utils.py`)
+- AI-powered chat using TF-IDF vectorization and Cosine Similarity
+- Natural language processing for product recommendations
+- Intent detection and entity extraction
+- Multi-turn conversation support
 
 ## Testing
 

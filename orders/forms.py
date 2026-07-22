@@ -31,9 +31,12 @@ class CheckoutForm(forms.Form):
     payment_method = forms.ChoiceField(
         choices=[
             ('COD', 'Cash on Delivery'),
-            ('RAZORPAY', 'Razorpay (Card / UPI / Net Banking)'),
-            ('CARD', 'Credit / Debit Card'),
             ('UPI', 'UPI Payment'),
+            ('CARD', 'Credit Card'),
+            ('DEBIT', 'Debit Card'),
+            ('NETBANKING', 'Net Banking'),
+            ('WALLET', 'Wallet'),
+            ('RAZORPAY', 'Razorpay (Card / UPI / Net Banking)'),
         ],
         widget=forms.RadioSelect()
     )
