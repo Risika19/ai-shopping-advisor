@@ -1,0 +1,51 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Categories{% endblock %}
+{% block page_title %}Category Management{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Managed Categories</h5>
+                <a href="{% url 'admin_category_add' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-lg"></i> Add</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead><tr><th>Icon</th><th>Name</th><th>Description</th><th>Product Count</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td class="fs-4">{% if cat.icon %}<i class="bi {{ cat.icon }}"></i>{% else %}<i class="bi bi-tag text-muted"></i>{% endif %}</td>
+                            <td><strong>{{ cat.name }}</strong></td>
+                            <td><small class="text-muted">{{ cat.description|truncatechars:50 }}</small></td>
+                            <td><span class="badge bg-info">{{ cat.product_count }}</span></td>
+                            <td>
+                                <a href="{% url 'admin_category_edit' cat.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'admin_category_delete' cat.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete {{ cat.name }}?')"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">No categories yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>From Products</h5>
+            <ul class="list-group list-group-flush">
+                {% for pc in product_categories %}
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 ps-0">
+                    {{ pc.category }} <span class="badge bg-secondary rounded-pill">{{ pc.count }}</span>
+                </li>
+                {% empty %}
+                <li class="text-muted">No products</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

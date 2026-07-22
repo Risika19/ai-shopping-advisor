@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Recommendations - AI Shopping Advisor{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-stars"></i> AI Product Recommendations</h2>
+        <p class="text-muted">Tell us what you need and we'll find the perfect match</p>
+    </div>
+
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">What are you looking for?</label>
+                    <input type="text" name="query" class="form-control" placeholder="e.g. laptop for gaming under 80000" value="{{ query }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Mobile">Mobile</option>
+                        <option value="Headphone">Headphone</option>
+                        <option value="Smartwatch">Smartwatch</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Max Budget</label>
+                    <input type="number" name="budget" class="form-control" placeholder="₹ Budget">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2"><i class="bi bi-search"></i> Find</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if budget_exceeded %}
+        <div class="alert alert-warning text-center py-3 mb-4" role="alert" style="border-radius: 12px; background: rgba(255,169,77,0.15); border: 1px solid rgba(255,169,77,0.3); color: var(--accent-4);">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            No exact matches were found within your budget. Here are the closest alternatives.
+        </div>
+    {% endif %}
+
+    {% if recommendations %}
+        <div class="row g-4">
+            {% for product in recommendations %}
+                <div class="col-md-3">
+                    <div class="card border-0 h-100">
+                        <div class="position-relative">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}" loading="lazy" style="height:160px;">
+                            {% else %}
+                                <div class="bg-light text-center py-4 rounded-top"><i class="bi bi-image display-4 text-muted"></i></div>
+                            {% endif %}
+                            <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark">
+                                <i class="bi bi-star-fill"></i> {{ product.rating }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary mb-1">{{ product.category }}</span>
+                            <h6 class="fw-bold mb-1">{{ product.name }}</h6>
+                            <small class="text-muted">{{ product.brand }}</small>
+                            <h5 class="text-primary fw-bold mt-2 mb-0">₹{{ product.price }}</h5>
+                            <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-primary btn-sm w-100 mt-2 rounded-pill">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-robot display-1 text-primary opacity-50"></i>
+            </div>
+            <p class="fs-5 fw-semibold">How can I help you today?</p>
+            <p class="text-muted">Try one of these:</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <span class="badge bg-light text-dark border p-2">laptop for programming under 70000</span>
+                <span class="badge bg-light text-dark border p-2">best camera phone under 50000</span>
+                <span class="badge bg-light text-dark border p-2">wireless headphones for gym</span>
+                <span class="badge bg-light text-dark border p-2">smartwatch with long battery</span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

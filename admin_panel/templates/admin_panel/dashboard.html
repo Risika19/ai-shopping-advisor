@@ -1,0 +1,145 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon blue"><i class="bi bi-box-seam"></i></div>
+            <div><small class="text-muted">Total Products</small><h4 class="mb-0">{{ total_products }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon teal"><i class="bi bi-tags"></i></div>
+            <div><small class="text-muted">Categories</small><h4 class="mb-0">{{ total_categories }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon green"><i class="bi bi-people"></i></div>
+            <div><small class="text-muted">Total Users</small><h4 class="mb-0">{{ total_users }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon orange"><i class="bi bi-truck"></i></div>
+            <div><small class="text-muted">Total Orders</small><h4 class="mb-0">{{ total_orders }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon green"><i class="bi bi-currency-dollar"></i></div>
+            <div><small class="text-muted">Total Revenue</small><h4 class="mb-0">₹{{ total_revenue|floatformat:0 }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon red"><i class="bi bi-hourglass"></i></div>
+            <div><small class="text-muted">Pending Orders</small><h4 class="mb-0">{{ pending_orders }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon blue"><i class="bi bi-check-circle"></i></div>
+            <div><small class="text-muted">Delivered</small><h4 class="mb-0">{{ delivered_orders }}</h4></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="icon purple"><i class="bi bi-robot"></i></div>
+            <div><small class="text-muted">AI Recommendations</small><h4 class="mb-0">{{ rec_count }}</h4></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-2">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Sales & Revenue (30 Days)</h5>
+            <div class="chart-container"><canvas id="salesChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Order Status</h5>
+            <div class="chart-container"><canvas id="statusChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Category Distribution</h5>
+            <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Orders</h5>
+            <div class="table-responsive" style="max-height:300px;overflow-y:auto;">
+                <table class="table table-sm table-hover mb-0">
+                    <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td><a href="{% url 'admin_order_detail' order.pk %}">{{ order.order_id }}</a></td>
+                            <td>{{ order.name }}</td>
+                            <td>₹{{ order.total|floatformat:0 }}</td>
+                            <td><span class="badge bg-{% if order.order_status == 'DELIVERED' %}success{% elif order.order_status == 'CANCELLED' %}danger{% elif order.order_status == 'PENDING' %}warning text-dark{% else %}info{% endif %}">{{ order.get_order_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">No orders yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+var ctx1 = document.getElementById('salesChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: {{ days|safe }},
+        datasets: [
+            { label: 'Orders', data: {{ order_counts|safe }}, backgroundColor: 'rgba(13,110,253,0.6)', borderColor: '#0d6efd', borderWidth: 1, yAxisID: 'y' },
+            { label: 'Revenue (₹)', data: {{ revenue_data|safe }}, backgroundColor: 'rgba(25,135,84,0.6)', borderColor: '#198754', borderWidth: 1, yAxisID: 'y1', type: 'line', tension: 0.3 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y1: { beginAtZero: true, position: 'right', grid: { display: false } }
+        }
+    }
+});
+var ctx2 = document.getElementById('statusChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: {{ status_labels|safe }},
+        datasets: [{ data: {{ status_counts|safe }}, backgroundColor: ['#ffc107','#0d6efd','#6f42c1','#20c997','#198754','#dc3545'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+var ctx3 = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctx3, {
+    type: 'bar',
+    data: {
+        labels: {{ cat_labels|safe }},
+        datasets: [{ label: 'Products', data: {{ cat_counts|safe }}, backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545','#6f42c1','#20c997'] }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } }
+    }
+});
+</script>
+{% endblock %}

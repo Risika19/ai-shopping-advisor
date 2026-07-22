@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load order_tags %}
+{% block title %}Order {{ order.order_id }} - ShopAI{% endblock %}
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-receipt"></i> Order Details</h2>
+            <p class="text-muted">{{ order.order_id }}</p>
+        </div>
+        <div>
+            <a href="{% url 'order_invoice' order.pk %}" class="btn btn-outline-premium me-2"><i class="bi bi-download"></i> Invoice</a>
+            <a href="{% url 'my_orders' %}" class="btn btn-outline-premium"><i class="bi bi-arrow-left"></i> Back</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-box-seam"></i> Items</h5>
+                {% for item in order.items.all %}
+                <div class="d-flex justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25">
+                    <div>
+                        <h6 class="mb-0">{{ item.product_name }}</h6>
+                        <small class="text-muted">Qty: {{ item.quantity }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="fw-bold">Rs {{ item.subtotal|floatformat:0 }}</span>
+                        <small class="d-block text-muted">Rs {{ item.product_price|floatformat:0 }}/item</small>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between mt-3 pt-2">
+                    <strong>Total</strong>
+                    <strong class="text-primary fs-5">Rs {{ order.total|floatformat:0 }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="glass-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Status</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Payment</span>
+                    <span class="badge {% if order.payment_status == 'SUCCESS' %}bg-success{% elif order.payment_status == 'FAILED' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                        {{ order.get_payment_status_display }}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Order Status</span>
+                    <span class="badge {% if order.order_status == 'DELIVERED' %}bg-success{% elif order.order_status == 'CANCELLED' %}bg-danger{% else %}bg-info{% endif %}">
+                        {{ order.get_order_status_display }}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Method</span>
+                    <span>{{ order.get_payment_method_display }}</span>
+                </div>
+
+                <hr class="border-secondary">
+                <h6 class="fw-bold mb-2"><i class="bi bi-truck"></i> Tracking</h6>
+                <div class="timeline">
+                    {% for status in 'PENDING CONFIRMED PACKED SHIPPED DELIVERED'|split %}
+                    <div class="d-flex align-items-center mb-2">
+                        {% if order.order_status == status or status == 'PENDING' and order.order_status in 'CONFIRMED PACKED SHIPPED DELIVERED' or status == 'CONFIRMED' and order.order_status in 'PACKED SHIPPED DELIVERED' or status == 'PACKED' and order.order_status in 'SHIPPED DELIVERED' or status == 'SHIPPED' and order.order_status == 'DELIVERED' %}
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {% else %}
+                        <i class="bi bi-circle text-muted me-2"></i>
+                        {% endif %}
+                        <small class="{% if order.order_status == status %}fw-bold{% endif %}">{{ status|title }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="glass-card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt"></i> Shipping</h5>
+                <p class="mb-1 fw-medium">{{ order.name }}</p>
+                <p class="mb-1 small">{{ order.address }}</p>
+                <p class="mb-1 small">{{ order.city }}, {{ order.state }} - {{ order.pincode }}</p>
+                <p class="mb-0 small">{{ order.phone }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

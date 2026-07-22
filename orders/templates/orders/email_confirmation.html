@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:30px;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+    <div style="text-align:center;margin-bottom:20px;">
+        <h2 style="color:#6c63ff;">ShopAI</h2>
+        <p style="color:#666;">Order Confirmation</p>
+    </div>
+    <hr style="border:none;border-top:1px solid #eee;">
+    <p>Dear <strong>{{ order.name }}</strong>,</p>
+    <p>Your order has been placed successfully!</p>
+    <div style="background:#f8f8ff;border-radius:8px;padding:15px;margin:15px 0;">
+        <p style="margin:5px 0;"><strong>Order ID:</strong> {{ order.order_id }}</p>
+        <p style="margin:5px 0;"><strong>Date:</strong> {{ order.created_at|date:"d M Y, h:i A" }}</p>
+        <p style="margin:5px 0;"><strong>Total:</strong> Rs {{ order.total|floatformat:0 }}</p>
+        <p style="margin:5px 0;"><strong>Payment:</strong> {{ order.get_payment_method_display }}</p>
+        <p style="margin:5px 0;"><strong>Status:</strong> {{ order.get_order_status_display }}</p>
+    </div>
+    <h4 style="color:#333;">Items Ordered:</h4>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+        <tr style="background:#6c63ff;color:#fff;">
+            <th style="padding:8px;text-align:left;">Product</th>
+            <th style="padding:8px;text-align:center;">Qty</th>
+            <th style="padding:8px;text-align:right;">Price</th>
+        </tr>
+        {% for item in order.items.all %}
+        <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:8px;">{{ item.product_name }}</td>
+            <td style="padding:8px;text-align:center;">{{ item.quantity }}</td>
+            <td style="padding:8px;text-align:right;">Rs {{ item.subtotal|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p style="color:#666;">Shipping to: {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}</p>
+    <hr style="border:none;border-top:1px solid #eee;">
+    <p style="text-align:center;color:#999;font-size:12px;">Thank you for shopping with ShopAI!</p>
+</div>
+</body>
+</html>

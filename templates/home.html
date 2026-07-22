@@ -1,0 +1,764 @@
+{% extends 'base.html' %}
+{% block title %}ShopAI — AI-Powered Smart Shopping Advisor{% endblock %}
+{% block content %}
+
+<style>
+    .announcement-bar {
+        background: linear-gradient(90deg, #6c63ff, #ff6b9d);
+        padding: 0.5rem 0;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 72px;
+    }
+    .announcement-bar a { color: white; text-decoration: underline; text-underline-offset: 3px; }
+
+    .hero-section {
+        padding: 6rem 0 5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,107,157,0.1), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 900;
+        letter-spacing: -2px;
+        line-height: 1.1;
+    }
+    .hero-title .highlight {
+        background: linear-gradient(135deg, #6c63ff, #ff6b9d, #ffa94d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 560px;
+        line-height: 1.7;
+    }
+    .hero-search {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 60px;
+        padding: 0.4rem;
+        display: flex;
+        align-items: center;
+        max-width: 520px;
+        transition: var(--transition);
+    }
+    .hero-search:focus-within { border-color: var(--accent-1); box-shadow: var(--shadow-glow); }
+    .hero-search input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 0.8rem 1.2rem;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        outline: none;
+    }
+    .hero-search input::placeholder { color: var(--text-muted); }
+    .hero-search button {
+        background: var(--gradient-main);
+        border: none;
+        border-radius: 50px;
+        padding: 0.7rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .hero-search button:hover { transform: scale(1.03); }
+
+    .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 2.5rem;
+    }
+    .hero-stat-value { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+    .hero-stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .hero-ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0,212,170,0.1);
+        border: 1px solid rgba(0,212,170,0.3);
+        border-radius: 50px;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+        color: var(--accent-3);
+        margin-bottom: 1.5rem;
+    }
+    .hero-ai-badge i { font-size: 1rem; }
+
+    .counters-section {
+        padding: 4rem 0;
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+    }
+    .counter-item { text-align: center; padding: 1.5rem; }
+    .counter-item .counter-icon {
+        width: 60px; height: 60px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+    .counter-item .counter { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; }
+    .counter-item .counter-label { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.3rem; }
+
+    .category-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        height: 100%;
+    }
+    .category-card:hover { transform: translateY(-6px); border-color: rgba(108,99,255,0.3); box-shadow: var(--shadow-glow); }
+    .category-card .cat-icon {
+        width: 70px; height: 70px;
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+    }
+    .category-card h5 { font-weight: 700; margin-bottom: 0.3rem; }
+    .category-card .cat-count { color: var(--text-muted); font-size: 0.85rem; }
+
+    .brand-scroll {
+        display: flex;
+        gap: 2rem;
+        overflow-x: auto;
+        padding: 1rem 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .brand-scroll::-webkit-scrollbar { display: none; }
+    .brand-item {
+        flex-shrink: 0;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+    .brand-item:hover { border-color: var(--accent-1); color: var(--text-primary); background: var(--bg-card-hover); }
+
+    .featured-scroll {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        padding: 0.5rem 0 1.5rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+    }
+    .featured-scroll::-webkit-scrollbar { height: 4px; }
+    .featured-scroll::-webkit-scrollbar-thumb { background: var(--accent-1); border-radius: 10px; }
+    .featured-scroll .product-card { min-width: 280px; max-width: 280px; scroll-snap-align: start; }
+
+    .ai-chat-cta {
+        background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,157,0.05));
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .ai-chat-cta::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .ai-chat-cta .chat-pulse {
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        background: var(--gradient-main);
+        display: flex; align-items: center; justify-content: center;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(108,99,255,0.5); }
+        70% { box-shadow: 0 0 0 20px rgba(108,99,255,0); }
+        100% { box-shadow: 0 0 0 0 rgba(108,99,255,0); }
+    }
+
+    .review-card {
+        background: var(--glass-card);
+        padding: 1.8rem;
+        border-radius: var(--radius-md);
+        height: 100%;
+    }
+    .review-card .review-text {
+        font-style: italic;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    .sentiment-pos { color: var(--accent-3); }
+    .sentiment-neg { color: var(--accent-2); }
+    .sentiment-neu { color: var(--accent-4); }
+
+    .smart-matching-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    .ml-step {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        transition: var(--transition);
+    }
+    .ml-step:hover { border-color: var(--accent-1); box-shadow: var(--shadow-glow); }
+    .ml-step .step-num {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: var(--gradient-main);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .deals-grid .product-card {
+        position: relative;
+    }
+    .deals-grid .product-card .deal-badge {
+        position: absolute;
+        top: 1rem; left: 1rem;
+        z-index: 2;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title { font-size: 2.2rem; }
+        .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+        .hero-stat-value { font-size: 1.4rem; }
+        .smart-matching-grid { grid-template-columns: 1fr; }
+        .ai-chat-cta { padding: 2rem 1.5rem; }
+        .featured-scroll .product-card { min-width: 240px; max-width: 240px; }
+    }
+</style>
+
+<div class="announcement-bar" data-aos>
+    <div class="container">
+        <i class="bi bi-lightning-fill me-1"></i> Free shipping on orders over ₹999 — Use code: <strong>SHOPAI</strong>
+        <a href="{% url 'product_list' %}" class="ms-2">Shop Now <i class="bi bi-arrow-right"></i></a>
+    </div>
+</div>
+
+<section class="hero-section" data-aos>
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero-ai-badge">
+                    <i class="bi bi-robot"></i> Powered by Advanced AI &amp; Machine Learning
+                </div>
+                <h1 class="hero-title">
+                    Find Your Perfect<br>
+                    <span class="highlight">Product Instantly</span>
+                </h1>
+                <p class="hero-subtitle mt-3">
+                    Describe what you need in plain English. Our AI engine analyzes thousands of products
+                    to find your ideal match — smarter, faster, and more personal.
+                </p>
+                <form method="GET" action="{% url 'recommend' %}" class="hero-search mt-4">
+                    <input type="text" name="q" placeholder='Try "gaming laptop under 80000" or "best wireless earphones"' autocomplete="off">
+                    <button type="submit"><i class="bi bi-stars me-1"></i> AI Search</button>
+                </form>
+                <div class="hero-stats">
+                    <div>
+                        <div class="hero-stat-value gradient-text">{{ product_count|default:"0" }}</div>
+                        <div class="hero-stat-label">Products</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-value gradient-text">{{ review_count|default:"0" }}</div>
+                        <div class="hero-stat-label">Reviews</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-value gradient-text">{{ category_counts|length }}</div>
+                        <div class="hero-stat-label">Categories</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="glass-card p-5 text-center" style="border-radius: var(--radius-xl);">
+                    <div class="chat-pulse mx-auto mb-3">
+                        <i class="bi bi-chat-dots text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Ask AI Assistant</h5>
+                    <p class="text-secondary small mb-3">Get personalized recommendations instantly</p>
+                    <a href="{% url 'chatbot_view' %}" class="btn btn-premium w-100">
+                        <i class="bi bi-robot me-1"></i> Start Chat
+                    </a>
+                    <div class="mt-3 text-start">
+                        <div class="bg-dark rounded-3 p-3 small mb-2" style="background: rgba(255,255,255,0.05) !important;">
+                            <i class="bi bi-person text-primary me-1"></i> <strong>You:</strong> I need a laptop for programming under 60000
+                        </div>
+                        <div class="bg-dark rounded-3 p-3 small" style="background: rgba(108,99,255,0.1) !important;">
+                            <i class="bi bi-robot text-success me-1"></i> <strong>AI:</strong> I found 3 great options featuring 16GB RAM and Intel i5...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="counters-section" data-aos>
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-6 col-lg-3">
+                <div class="counter-item">
+                    <div class="counter-icon" style="background: rgba(108,99,255,0.15);">
+                        <i class="bi bi-box-seam" style="color: var(--accent-1);"></i>
+                    </div>
+                    <div class="counter" data-target="{{ product_count|default:'0' }}" data-suffix="+">0</div>
+                    <div class="counter-label">Products Catalogued</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="counter-item">
+                    <div class="counter-icon" style="background: rgba(255,107,157,0.15);">
+                        <i class="bi bi-chat-square-quote" style="color: var(--accent-2);"></i>
+                    </div>
+                    <div class="counter" data-target="{{ review_count|default:'0' }}" data-suffix="+">0</div>
+                    <div class="counter-label">Verified Reviews</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="counter-item">
+                    <div class="counter-icon" style="background: rgba(0,212,170,0.15);">
+                        <i class="bi bi-grid" style="color: var(--accent-3);"></i>
+                    </div>
+                    <div class="counter" data-target="{{ category_counts|length|default:'0' }}">0</div>
+                    <div class="counter-label">Product Categories</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="counter-item">
+                    <div class="counter-icon" style="background: rgba(255,169,77,0.15);">
+                        <i class="bi bi-stars" style="color: var(--accent-4);"></i>
+                    </div>
+                    <div class="counter" data-target="5000" data-suffix="+">0</div>
+                    <div class="counter-label">AI Recommendations</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if featured_products %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-4">
+            <div>
+                <span class="section-badge"><i class="bi bi-star-fill me-1"></i> Featured</span>
+                <h2 class="section-title mb-0">Featured Products</h2>
+            </div>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-premium btn-sm d-none d-md-inline-flex">View All <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="featured-scroll">
+            {% for product in featured_products %}
+            <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none">
+                <div class="product-card">
+                    <div class="position-relative overflow-hidden">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                                <i class="bi bi-box-seam text-secondary" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        {% endif %}
+                        {% if forloop.first %}<span class="badge-top position-absolute top-0 end-0 m-3">Top Rated</span>{% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="text-secondary small mb-1">{{ product.brand }}</div>
+                        <h6 class="card-title text-white mb-1">{{ product.name|truncatechars:40 }}</h6>
+                        <div class="rating-stars mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                            {% endfor %}
+                            <span class="text-secondary ms-1" style="font-size: 0.8rem;">{{ product.rating }}</span>
+                        </div>
+                        <div class="price gradient-text">₹{{ product.price|floatformat:0 }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if trending_products %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-4">
+            <div>
+                <span class="section-badge" style="background: rgba(255,107,157,0.15); color: var(--accent-2);"><i class="bi bi-graph-up-arrow me-1"></i> Trending</span>
+                <h2 class="section-title mb-0">Trending Now</h2>
+                <p class="section-subtitle">Most popular picks among our users this week</p>
+            </div>
+            <a href="{% url 'product_list' %}?category=" class="btn btn-outline-premium btn-sm d-none d-md-inline-flex">Explore <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for product in trending_products %}
+            <div class="col-6 col-md-3">
+                <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none">
+                    <div class="product-card">
+                        <div class="position-relative overflow-hidden">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                                    <i class="bi bi-box-seam text-secondary" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge-premium position-absolute top-0 end-0 m-3"><i class="bi bi-fire me-1"></i> Hot</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-secondary small mb-1">{{ product.brand }}</div>
+                            <h6 class="card-title text-white mb-1" style="font-size: 0.95rem;">{{ product.name|truncatechars:35 }}</h6>
+                            <div class="rating-stars mb-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="price gradient-text" style="font-size: 1.1rem;">₹{{ product.price|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if new_arrivals %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-4">
+            <div>
+                <span class="section-badge" style="background: rgba(0,212,170,0.15); color: var(--accent-3);"><i class="bi bi-clock-history me-1"></i> New</span>
+                <h2 class="section-title mb-0">New Arrivals</h2>
+                <p class="section-subtitle">Fresh additions to our catalog</p>
+            </div>
+        </div>
+        <div class="featured-scroll">
+            {% for product in new_arrivals %}
+            <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none">
+                <div class="product-card">
+                    <div class="position-relative overflow-hidden">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                                <i class="bi bi-box-seam text-secondary" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        {% endif %}
+                        <span class="badge-new position-absolute top-0 end-0 m-3">New</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-secondary small mb-1">{{ product.brand }}</div>
+                        <h6 class="card-title text-white mb-1">{{ product.name|truncatechars:40 }}</h6>
+                        <div class="rating-stars mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="price gradient-text">₹{{ product.price|floatformat:0 }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge"><i class="bi bi-grid-3x3-gap me-1"></i> Categories</span>
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle mx-auto">Explore our curated categories</p>
+        </div>
+        <div class="row g-4">
+            {% for item in category_counts %}
+            <div class="col-6 col-md-3">
+                <a href="{% url 'product_list' %}?category={{ item.category }}" class="text-decoration-none">
+                    <div class="category-card">
+                        <div class="cat-icon" style="background: {% cycle 'rgba(108,99,255,0.15)' 'rgba(255,107,157,0.15)' 'rgba(0,212,170,0.15)' 'rgba(255,169,77,0.15)' %};">
+                            {% if item.category == 'Laptop' %}
+                                <i class="bi bi-laptop" style="color: var(--accent-1);"></i>
+                            {% elif item.category == 'Mobile' %}
+                                <i class="bi bi-phone" style="color: var(--accent-2);"></i>
+                            {% elif item.category == 'Headphone' %}
+                                <i class="bi bi-headphones" style="color: var(--accent-3);"></i>
+                            {% elif item.category == 'Smartwatch' %}
+                                <i class="bi bi-smartwatch" style="color: var(--accent-4);"></i>
+                            {% else %}
+                                <i class="bi bi-box" style="color: var(--accent-1);"></i>
+                            {% endif %}
+                        </div>
+                        <h5>{{ item.category }}{% if item.category != 'Headphone' %}s{% endif %}</h5>
+                        <div class="cat-count">{{ item.count }} products</div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-secondary py-5">
+                <i class="bi bi-inbox display-4"></i>
+                <p class="mt-2">No categories available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if brands %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="text-center mb-4">
+            <span class="section-badge" style="background: rgba(255,169,77,0.15); color: var(--accent-4);"><i class="bi bi-building me-1"></i> Brands</span>
+            <h2 class="section-title">Trusted Brands</h2>
+        </div>
+        <div class="brand-scroll">
+            {% for brand in brands %}
+            <a href="{% url 'product_list' %}?brand={{ brand }}" class="text-decoration-none">
+                <div class="brand-item">
+                    <i class="bi bi-trophy me-2" style="color: var(--accent-4);"></i> {{ brand }}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if top_rated %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-4">
+            <div>
+                <span class="section-badge" style="background: rgba(0,212,170,0.15); color: var(--accent-3);"><i class="bi bi-trophy-fill me-1"></i> Best of the Best</span>
+                <h2 class="section-title mb-0">Top Rated Picks</h2>
+                <p class="section-subtitle">Highest-rated products loved by our community</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for product in top_rated %}
+            <div class="col-6 col-md-3">
+                <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none">
+                    <div class="product-card">
+                        <div class="position-relative overflow-hidden">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                                    <i class="bi bi-box-seam text-secondary" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge-top position-absolute top-0 end-0 m-3">{{ product.rating }} <i class="bi bi-star-fill ms-1" style="font-size: 0.6rem;"></i></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-secondary small mb-1">{{ product.brand }}</div>
+                            <h6 class="card-title text-white mb-1" style="font-size: 0.95rem;">{{ product.name|truncatechars:35 }}</h6>
+                            <div class="rating-stars mb-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="price gradient-text" style="font-size: 1.1rem;">₹{{ product.price|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="ai-chat-cta">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <span class="section-badge"><i class="bi bi-robot me-1"></i> AI Powered</span>
+                    <h2 class="section-title">Smart Matching Engine</h2>
+                    <p class="section-subtitle mb-4">
+                        Our machine learning engine uses TF-IDF vectorization and cosine similarity to
+                        understand exactly what you need — not just keywords, but intent.
+                    </p>
+                    <div class="smart-matching-grid">
+                        <div class="ml-step">
+                            <div class="step-num">1</div>
+                            <h6 class="fw-bold mb-1">You Describe</h6>
+                            <p class="text-secondary small mb-0">Tell us what you need in natural language, like "laptop for programming under 60000 with 16GB RAM"</p>
+                        </div>
+                        <div class="ml-step">
+                            <div class="step-num">2</div>
+                            <h6 class="fw-bold mb-1">AI Analyzes</h6>
+                            <p class="text-secondary small mb-0">TF-IDF converts your query and product specs into mathematical vectors for comparison</p>
+                        </div>
+                        <div class="ml-step">
+                            <div class="step-num">3</div>
+                            <h6 class="fw-bold mb-1">Cosine Similarity</h6>
+                            <p class="text-secondary small mb-0">Our algorithm measures the angle between vectors to find the closest matching products</p>
+                        </div>
+                        <div class="ml-step">
+                            <div class="step-num">4</div>
+                            <h6 class="fw-bold mb-1">Instant Results</h6>
+                            <p class="text-secondary small mb-0">Get ranked recommendations tailored to your needs in milliseconds</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center">
+                    <div class="glass-card p-5" style="border-radius: var(--radius-xl);">
+                        <i class="bi bi-graph-up-arrow display-1 gradient-text"></i>
+                        <h4 class="fw-bold mt-3">Try AI Matching</h4>
+                        <p class="text-secondary small">Describe your ideal product and let AI find it</p>
+                        <a href="{% url 'recommend' %}" class="btn btn-premium w-100 mt-2">
+                            <i class="bi bi-stars me-1"></i> Get Recommendations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="section-badge" style="background: rgba(255,107,157,0.15); color: var(--accent-2);"><i class="bi bi-arrow-left-right me-1"></i> Compare</span>
+                <h2 class="section-title">Compare Side by Side</h2>
+                <p class="section-subtitle">
+                    Can't decide between two products? Add up to 4 products and compare specs,
+                    prices, ratings, and features — all on one screen.
+                </p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Compare specs, prices, ratings</li>
+                    <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Up to 4 products at once</li>
+                    <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Informed buying decisions</li>
+                </ul>
+                <a href="{% url 'compare_products' %}" class="btn btn-premium mt-2">
+                    <i class="bi bi-arrow-left-right me-1"></i> Start Comparing
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="glass-card p-4" style="border-radius: var(--radius-xl);">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="bg-dark rounded-4 p-3 text-center" style="background: rgba(108,99,255,0.1) !important;">
+                                <i class="bi bi-laptop fs-2 gradient-text"></i>
+                                <div class="small text-secondary mt-1">Laptop A</div>
+                                <div class="fw-bold">₹65,999</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-dark rounded-4 p-3 text-center" style="background: rgba(255,107,157,0.1) !important;">
+                                <i class="bi bi-laptop fs-2" style="color: var(--accent-2);"></i>
+                                <div class="small text-secondary mt-1">Laptop B</div>
+                                <div class="fw-bold">₹72,999</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-dark rounded-4 p-3 text-center" style="background: rgba(0,212,170,0.1) !important;">
+                                <i class="bi bi-phone fs-2" style="color: var(--accent-3);"></i>
+                                <div class="small text-secondary mt-1">Phone X</div>
+                                <div class="fw-bold">₹39,999</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-dark rounded-4 p-3 text-center" style="background: rgba(255,169,77,0.1) !important;">
+                                <i class="bi bi-headphones fs-2" style="color: var(--accent-4);"></i>
+                                <div class="small text-secondary mt-1">Headphones</div>
+                                <div class="fw-bold">₹2,499</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if recent_reviews %}
+<section class="py-5" data-aos>
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge" style="background: rgba(0,212,170,0.15); color: var(--accent-3);"><i class="bi bi-chat-square-quote me-1"></i> Social Proof</span>
+            <h2 class="section-title">What Our Users Say</h2>
+            <p class="section-subtitle mx-auto">Real reviews from real customers</p>
+        </div>
+        <div class="row g-4">
+            {% for review in recent_reviews %}
+            <div class="col-md-4">
+                <div class="review-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(108,99,255,0.2) !important;">
+                            <i class="bi bi-person-fill text-primary"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold small">{{ review.user.username }}</div>
+                            <div class="rating-stars" style="font-size: 0.75rem;">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <span class="ms-auto small {% if review.sentiment == 'positive' %}sentiment-pos{% elif review.sentiment == 'negative' %}sentiment-neg{% else %}sentiment-neu{% endif %}">
+                            <i class="bi {% if review.sentiment == 'positive' %}bi-emoji-smile{% elif review.sentiment == 'negative' %}bi-emoji-frown{% else %}bi-emoji-neutral{% endif %}"></i>
+                            {{ review.sentiment|title }}
+                        </span>
+                    </div>
+                    <p class="review-text">"{{ review.comment|truncatechars:120 }}"</p>
+                    <div class="small text-muted mt-2">
+                        <i class="bi bi-box me-1"></i> {{ review.product.name|truncatechars:30 }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

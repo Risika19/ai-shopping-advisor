@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Compare Products - AI Shopping Advisor{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-arrow-left-right"></i> Compare Products</h2>
+        <a href="{% url 'clear_compare' %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Clear All</a>
+    </div>
+
+    {% if products %}
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:150px;">Specification</th>
+                        {% for p in products %}
+                            <th class="text-center">{{ p.brand }} {{ p.name }}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Image</strong></td>
+                        {% for p in products %}
+                            <td class="text-center">
+                                {% if p.image %}
+                                    <img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy" style="height:100px;width:auto;object-fit:cover;border-radius:8px;">
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Category</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.category }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Price</strong></td>
+                        {% for p in products %}<td class="text-center"><strong class="text-primary">₹{{ p.price }}</strong></td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Rating</strong></td>
+                        {% for p in products %}<td class="text-center"><span class="badge bg-warning text-dark fs-6">{{ p.rating }}</span></td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>RAM</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.ram|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Storage</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.storage|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Processor</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.processor|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Battery</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.battery|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Display</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.display|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Camera</strong></td>
+                        {% for p in products %}<td class="text-center">{{ p.camera|default:"-" }}</td>{% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Action</strong></td>
+                        {% for p in products %}
+                            <td class="text-center">
+                                <a href="{% url 'product_detail' p.pk %}" class="btn btn-primary btn-sm">View</a>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-cart-plus display-1 text-muted"></i>
+            <p class="mt-3 fs-5">No products added to compare yet.</p>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

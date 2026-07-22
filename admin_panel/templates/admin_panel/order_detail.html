@@ -1,0 +1,100 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Order {{ order.order_id }}{% endblock %}
+{% block page_title %}Order #{{ order.order_id }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-box-seam me-2"></i>Order Items</h5>
+            <div class="table-container">
+                <table class="table mb-0">
+                    <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>₹{{ item.product_price|floatformat:0 }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td><strong>₹{{ item.subtotal|floatformat:0 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot><tr class="table-active"><th colspan="3" class="text-end">Total</th><th><strong>₹{{ order.total|floatformat:0 }}</strong></th></tr></tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="stat-card mt-3">
+            <h5 class="mb-3"><i class="bi bi-credit-card me-2"></i>Payments</h5>
+            <div class="table-container">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Payment ID</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for p in payments %}
+                        <tr>
+                            <td><small>{{ p.razorpay_payment_id|default:'—' }}</small></td>
+                            <td>{{ p.method }}</td>
+                            <td>₹{{ p.amount|floatformat:0 }}</td>
+                            <td><span class="badge bg-{% if p.status == 'SUCCESS' %}success{% elif p.status == 'FAILED' %}danger{% else %}secondary{% endif %}">{{ p.status }}</span></td>
+                            <td><small>{{ p.created_at|date:"d M Y H:i" }}</small></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-muted text-center">No payment records</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Order Details</h5>
+            <dl class="row mb-0">
+                <dt class="col-sm-5">Order ID</dt><dd class="col-sm-7">{{ order.order_id }}</dd>
+                <dt class="col-sm-5">Customer</dt><dd class="col-sm-7">{{ order.name }}</dd>
+                <dt class="col-sm-5">Email</dt><dd class="col-sm-7">{{ order.email }}</dd>
+                <dt class="col-sm-5">Phone</dt><dd class="col-sm-7">{{ order.phone }}</dd>
+                <dt class="col-sm-5">Address</dt><dd class="col-sm-7"><small>{{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}</small></dd>
+                <dt class="col-sm-5">Payment</dt><dd class="col-sm-7">{{ order.get_payment_method_display }}</dd>
+                <dt class="col-sm-5">Order Date</dt><dd class="col-sm-7"><small>{{ order.created_at|date:"d M Y H:i" }}</small></dd>
+            </dl>
+        </div>
+        <div class="stat-card mt-3">
+            <h5 class="mb-3"><i class="bi bi-arrow-repeat me-2"></i>Update Status</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <select name="order_status" class="form-select">
+                        {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if order.order_status == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-arrow-repeat"></i> Update</button>
+                    <a href="{% url 'admin_orders' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
+            </form>
+        </div>
+        <div class="stat-card mt-3">
+            <h5 class="mb-3"><i class="bi bi-bar-chart-steps me-2"></i>Timeline</h5>
+            <ul class="list-unstyled mb-0">
+                {% for val, label in status_choices %}
+                <li class="d-flex align-items-center gap-2 mb-2">
+                    {% if val == order.order_status %}
+                        <span class="badge bg-primary rounded-pill" style="width:10px;height:10px;">&nbsp;</span>
+                        <strong>{{ label }}</strong>
+                    {% elif val == 'PENDING' or val == 'CONFIRMED' or val == 'PACKED' or val == 'SHIPPED' %}
+                        <span class="badge bg-success rounded-pill" style="width:10px;height:10px;">&nbsp;</span>
+                        <span class="text-success">{{ label }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary rounded-pill" style="width:10px;height:10px;">&nbsp;</span>
+                        <span class="text-muted">{{ label }}</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

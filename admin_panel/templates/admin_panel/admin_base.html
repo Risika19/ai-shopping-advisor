@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %} | ShopAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-bg: #1a1d21;
+            --sidebar-hover: #2b2f35;
+            --sidebar-active: #0d6efd;
+            --navbar-bg: #212529;
+            --content-bg: #f8f9fa;
+        }
+        [data-bs-theme="dark"] {
+            --content-bg: #1a1d21;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--content-bg); overflow-x: hidden; }
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: var(--sidebar-width);
+            height: 100vh; background: var(--sidebar-bg); z-index: 1000;
+            transition: transform 0.3s ease; overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 1rem 1.25rem; font-size: 1.25rem; font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.1); color: #fff;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .sidebar-brand i { font-size: 1.5rem; color: #0d6efd; }
+        .sidebar .nav-link {
+            padding: 0.75rem 1.25rem; color: rgba(255,255,255,0.65);
+            display: flex; align-items: center; gap: 0.75rem;
+            transition: all 0.2s; border-left: 3px solid transparent;
+            font-size: 0.9rem;
+        }
+        .sidebar .nav-link:hover {
+            background: var(--sidebar-hover); color: #fff;
+        }
+        .sidebar .nav-link.active {
+            background: var(--sidebar-hover); color: #fff;
+            border-left-color: var(--sidebar-active);
+        }
+        .sidebar .nav-link i { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+        .sidebar-section { padding: 0.5rem 1.25rem 0.25rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); }
+        .main-content {
+            margin-left: var(--sidebar-width); min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        .navbar-custom {
+            background: var(--navbar-bg); padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .navbar-custom .nav-item { color: rgba(255,255,255,0.75); cursor: pointer; }
+        .navbar-custom .nav-item:hover { color: #fff; }
+        .page-content { padding: 1.5rem; }
+        .stat-card {
+            background: var(--bs-body-bg); border: 1px solid var(--bs-border-color);
+            border-radius: 0.75rem; padding: 1.25rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .stat-card .icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-card .icon.blue { background: rgba(13,110,253,0.15); color: #0d6efd; }
+        .stat-card .icon.green { background: rgba(25,135,84,0.15); color: #198754; }
+        .stat-card .icon.orange { background: rgba(255,193,7,0.15); color: #ffc107; }
+        .stat-card .icon.red { background: rgba(220,53,69,0.15); color: #dc3545; }
+        .stat-card .icon.purple { background: rgba(111,66,193,0.15); color: #6f42c1; }
+        .stat-card .icon.teal { background: rgba(32,201,151,0.15); color: #20c997; }
+        .sidebar-toggle {
+            display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;
+        }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .admin-img-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .admin-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .status-badge { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 50px; }
+        .table > :not(caption) > * > * { vertical-align: middle; }
+        .search-box { max-width: 300px; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .sidebar-toggle { display: block; }
+        }
+        .toast-container { z-index: 9999; }
+        .table-container { overflow-x: auto; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <aside class="sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-shop"></i> ShopAI Admin
+        </div>
+        <div class="sidebar-section">Main</div>
+        <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <div class="sidebar-section">Management</div>
+        <a href="{% url 'admin_products' %}" class="nav-link {% if 'products' in request.path and 'admin_' in request.path %}active{% endif %}">
+            <i class="bi bi-box-seam"></i> Products
+        </a>
+        <a href="{% url 'admin_categories' %}" class="nav-link {% if 'categories' in request.path %}active{% endif %}">
+            <i class="bi bi-tags"></i> Categories
+        </a>
+        <a href="{% url 'admin_brands' %}" class="nav-link {% if 'brands' in request.path %}active{% endif %}">
+            <i class="bi bi-buildings"></i> Brands
+        </a>
+        <div class="sidebar-section">Sales</div>
+        <a href="{% url 'admin_orders' %}" class="nav-link {% if 'orders' in request.path %}active{% endif %}">
+            <i class="bi bi-truck"></i> Orders
+        </a>
+        <a href="{% url 'admin_payments' %}" class="nav-link {% if 'payments' in request.path %}active{% endif %}">
+            <i class="bi bi-credit-card"></i> Payments
+        </a>
+        <div class="sidebar-section">People</div>
+        <a href="{% url 'admin_users' %}" class="nav-link {% if 'users' in request.path %}active{% endif %}">
+            <i class="bi bi-people"></i> Users
+        </a>
+        <div class="sidebar-section">Insights</div>
+        <a href="{% url 'admin_ai_analytics' %}" class="nav-link {% if 'ai-analytics' in request.path %}active{% endif %}">
+            <i class="bi bi-robot"></i> AI Analytics
+        </a>
+        <a href="{% url 'admin_reports' %}" class="nav-link {% if 'reports' in request.path %}active{% endif %}">
+            <i class="bi bi-bar-chart"></i> Reports
+        </a>
+        <div class="sidebar-section">System</div>
+        <a href="{% url 'home' %}" class="nav-link">
+            <i class="bi bi-globe"></i> View Site
+        </a>
+        <a href="{% url 'admin:index' %}" class="nav-link">
+            <i class="bi bi-gear"></i> Django Admin
+        </a>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link text-danger w-100 border-0 bg-transparent text-start">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </button>
+        </form>
+    </aside>
+
+    <div class="main-content" id="mainContent">
+        <nav class="navbar-custom">
+            <div class="d-flex align-items-center gap-3">
+                <button class="sidebar-toggle" onclick="document.getElementById('adminSidebar').classList.toggle('show')">
+                    <i class="bi bi-list"></i>
+                </button>
+                <span class="text-white-50 d-none d-sm-inline">{% block page_title %}Dashboard{% endblock %}</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'home' %}" class="nav-item text-decoration-none" title="View Site">
+                    <i class="bi bi-house-door"></i>
+                </a>
+                <div class="dropdown">
+                    <a class="nav-item text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="d-none d-sm-inline ms-1">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text text-muted">{{ user.email }}</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">Django Admin</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home' %}">View Site</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {% if messages %}
+        <div class="container-fluid px-3 pt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="page-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('click', function(e) {
+            var sidebar = document.getElementById('adminSidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show') &&
+                !sidebar.contains(e.target) && !e.target.closest('.sidebar-toggle')) {
+                sidebar.classList.remove('show');
+            }
+        });
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

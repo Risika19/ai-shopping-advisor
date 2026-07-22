@@ -1,0 +1,51 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Brands{% endblock %}
+{% block page_title %}Brand Management{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-buildings me-2"></i>Managed Brands</h5>
+                <a href="{% url 'admin_brand_add' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-lg"></i> Add</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover mb-0">
+                    <thead><tr><th>Logo</th><th>Name</th><th>Description</th><th>Product Count</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for brand in brands %}
+                        <tr>
+                            <td>{% if brand.logo %}<img src="{{ brand.logo.url }}" class="admin-img-thumb" style="width:40px;height:40px;object-fit:contain;">{% else %}<div class="admin-img-thumb d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded" style="width:40px;height:40px;"><i class="bi bi-building text-muted"></i></div>{% endif %}</td>
+                            <td><strong>{{ brand.name }}</strong></td>
+                            <td><small class="text-muted">{{ brand.description|truncatechars:50 }}</small></td>
+                            <td><span class="badge bg-info">{{ brand.product_count }}</span></td>
+                            <td>
+                                <a href="{% url 'admin_brand_edit' brand.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'admin_brand_delete' brand.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete {{ brand.name }}?')"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">No brands yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>From Products</h5>
+            <ul class="list-group list-group-flush" style="max-height:400px;overflow-y:auto;">
+                {% for pb in product_brands %}
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 ps-0">
+                    {{ pb.brand }} <span class="badge bg-secondary rounded-pill">{{ pb.count }}</span>
+                </li>
+                {% empty %}
+                <li class="text-muted">No products</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

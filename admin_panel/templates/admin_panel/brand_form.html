@@ -1,0 +1,23 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Brand{% endblock %}
+{% block page_title %}{% if is_edit %}Edit Brand{% else %}Add Brand{% endif %}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="stat-card">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3"><label class="form-label">Brand Name *</label><input type="text" name="name" class="form-control" value="{{ brand.name|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ brand.description|default:'' }}</textarea></div>
+                <div class="mb-3"><label class="form-label">Logo</label><input type="file" name="logo" class="form-control" accept="image/*">{% if brand.logo %}<small class="text-muted">Current: <a href="{{ brand.logo.url }}" target="_blank">{{ brand.logo.name }}</a></small>{% endif %}</div>
+                {% if brand and brand.logo %}<div class="mb-3"><img src="{{ brand.logo.url }}" style="max-height:100px;border-radius:8px;" alt="Logo"></div>{% endif %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}Update{% else %}Create{% endif %}</button>
+                    <a href="{% url 'admin_brands' %}" class="btn btn-secondary"><i class="bi bi-x-lg"></i> Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

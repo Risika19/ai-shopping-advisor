@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShopAI — Smart Shopping, Powered by AI{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a2e;
+            --bg-card-hover: #22223a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6c6c8a;
+            --accent-1: #6c63ff;
+            --accent-2: #ff6b9d;
+            --accent-3: #00d4aa;
+            --accent-4: #ffa94d;
+            --gradient-main: linear-gradient(135deg, #6c63ff 0%, #ff6b9d 100%);
+            --gradient-card: linear-gradient(145deg, rgba(108,99,255,0.1), rgba(255,107,157,0.05));
+            --glass-bg: rgba(26, 26, 46, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 30px rgba(108,99,255,0.15);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-1); border-radius: 10px; }
+        ::selection { background: var(--accent-1); color: white; }
+
+        .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+        .glass-card { background: var(--gradient-card); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-md); transition: var(--transition); }
+        .glass-card:hover { transform: translateY(-6px); border-color: rgba(108,99,255,0.3); box-shadow: var(--shadow-glow); }
+        .gradient-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-premium {
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-premium::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: 0.6s; }
+        .btn-premium:hover::before { left: 100%; }
+        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(108,99,255,0.4); color: white; }
+        .btn-outline-premium {
+            background: transparent;
+            border: 2px solid rgba(108,99,255,0.5);
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        .btn-outline-premium:hover { background: var(--gradient-main); border-color: transparent; transform: translateY(-3px); color: white; }
+        .section-badge {
+            display: inline-block;
+            background: rgba(108,99,255,0.15);
+            color: var(--accent-1);
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+        }
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+        }
+        .product-card:hover { transform: translateY(-8px); border-color: rgba(108,99,255,0.3); box-shadow: var(--shadow-lg), var(--shadow-glow); }
+        .product-card .card-img-top {
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            transition: var(--transition);
+        }
+        .product-card:hover .card-img-top { transform: scale(1.05); }
+        .product-card .card-body { padding: 1.5rem; }
+        .product-card .card-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .product-card .card-text { color: var(--text-secondary); font-size: 0.9rem; }
+        .product-card .price { font-size: 1.3rem; font-weight: 800; }
+        .rating-stars { color: #ffc107; font-size: 0.85rem; }
+        .rating-stars .empty { color: var(--text-muted); opacity: 0.3; }
+
+        [data-aos] { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        [data-aos].aos-animate { opacity: 1; transform: translateY(0); }
+
+        .navbar {
+            background: rgba(10, 10, 15, 0.85) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.8rem 0;
+            transition: var(--transition);
+        }
+        .navbar.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+        .navbar-brand { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; }
+        .navbar-brand i { color: var(--accent-1); margin-right: 0.3rem; }
+        .nav-link {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--text-primary) !important; background: rgba(255,255,255,0.05); }
+        .nav-link::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: var(--gradient-main); transition: 0.3s; transform: translateX(-50%); }
+        .nav-link:hover::after { width: 60%; }
+
+        .theme-toggle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition);
+        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+        .footer {
+            background: var(--bg-secondary) !important;
+            border-top: 1px solid var(--glass-border);
+            padding: 4rem 0 2rem;
+            margin-top: auto;
+        }
+        .footer h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 1.2rem; }
+        .footer a { color: var(--text-secondary); text-decoration: none; transition: var(--transition); }
+        .footer a:hover { color: var(--accent-1); padding-left: 4px; }
+        .footer .social-link {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            margin-right: 0.5rem;
+        }
+        .footer .social-link:hover { background: var(--accent-1); color: white; transform: translateY(-3px); }
+
+        .badge-premium {
+            background: linear-gradient(135deg, #ff6b9d, #ffa94d);
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+        }
+        .badge-new {
+            background: linear-gradient(135deg, #00d4aa, #00b894);
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+        }
+        .badge-top {
+            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+        }
+
+        .floating-shapes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .shape { position: absolute; border-radius: 50%; opacity: 0.03; }
+        .shape-1 { width: 600px; height: 600px; background: var(--accent-1); top: -200px; right: -200px; animation: float 20s infinite; }
+        .shape-2 { width: 400px; height: 400px; background: var(--accent-2); bottom: -100px; left: -100px; animation: float 25s infinite reverse; }
+        .shape-3 { width: 300px; height: 300px; background: var(--accent-3); top: 50%; left: 50%; animation: float 30s infinite; }
+        @keyframes float { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(30px, -30px) rotate(120deg); } 66% { transform: translate(-20px, 20px) rotate(240deg); } }
+
+        @media (max-width: 768px) {
+            .section-title { font-size: 1.8rem; }
+            .section-subtitle { font-size: 1rem; }
+            .navbar-brand { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-cart-check-fill"></i> Shop<span class="gradient-text">AI</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}"><i class="bi bi-grid"></i> Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'recommend' %}"><i class="bi bi-stars"></i> AI Recommend</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'compare_products' %}"><i class="bi bi-arrow-left-right"></i> Compare</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'chatbot_view' %}"><i class="bi bi-robot"></i> AI Chat</a></li>
+                </ul>
+                <ul class="navbar-nav align-items-center gap-1">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link position-relative" href="{% url 'cart_view' %}"><i class="bi bi-cart3"></i><span class="badge bg-danger rounded-pill ms-1" id="cart-count">0</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'wishlist_view' %}"><i class="bi bi-heart"></i></a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'my_orders' %}"><i class="bi bi-receipt"></i> Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i></a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person-circle"></i> {{ user.username }}</a></li>
+                        <li class="nav-item">
+                            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link text-danger border-0 bg-transparent" style="cursor:pointer;"><i class="bi bi-box-arrow-right"></i></button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                        <li class="nav-item"><a class="btn btn-premium btn-sm ms-2 py-2 px-3" href="{% url 'register' %}"><i class="bi bi-person-plus"></i> Sign Up</a></li>
+                    {% endif %}
+                    <li class="nav-item ms-2">
+                        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="container mt-5 pt-5">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show glass-card rounded-4 border-0 d-flex align-items-center px-4 py-3" role="alert">
+                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'error' %}bi-exclamation-circle-fill text-danger{% else %}bi-info-circle-fill text-info{% endif %} me-2 fs-5"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main style="flex:1; position: relative; z-index: 1;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4 pb-4">
+                <div class="col-lg-4">
+                    <h5 class="text-white"><i class="bi bi-cart-check-fill text-primary"></i> Shop<span class="gradient-text">AI</span></h5>
+                    <p class="text-secondary small lh-lg mt-2">Intelligent shopping recommendations powered by advanced AI and machine learning. Find your perfect product in seconds.</p>
+                    <div class="mt-3">
+                        <a href="#" class="social-link"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="bi bi-github"></i></a>
+                        <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="text-white text-uppercase small fw-bold tracking-wide">Explore</h6>
+                    <ul class="list-unstyled small mt-3">
+                        <li class="mb-2"><a href="{% url 'product_list' %}">All Products</a></li>
+                        <li class="mb-2"><a href="{% url 'recommend' %}">Recommendations</a></li>
+                        <li class="mb-2"><a href="{% url 'compare_products' %}">Compare</a></li>
+                        <li class="mb-2"><a href="{% url 'chatbot_view' %}">AI Assistant</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="text-white text-uppercase small fw-bold tracking-wide">Account</h6>
+                    <ul class="list-unstyled small mt-3">
+                        {% if user.is_authenticated %}
+                            <li class="mb-2"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                            <li class="mb-2"><a href="{% url 'profile' %}">Profile</a></li>
+                        {% else %}
+                            <li class="mb-2"><a href="{% url 'login' %}">Login</a></li>
+                            <li class="mb-2"><a href="{% url 'register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="text-white text-uppercase small fw-bold tracking-wide">Stay Updated</h6>
+                    <p class="text-secondary small mt-3">Get the latest deals and AI recommendations.</p>
+                    <form class="d-flex gap-2">
+                        <input type="email" class="form-control bg-transparent border-secondary text-white" placeholder="your@email.com" style="border-radius: 50px;">
+                        <button type="submit" class="btn btn-premium px-4"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25 my-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <p class="small text-secondary mb-0">&copy; 2026 ShopAI. Built with Django &amp; OpenAI.</p>
+                <div class="small text-secondary">
+                    <span class="me-3">Privacy</span>
+                    <span>Terms</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        document.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll-triggered animations (AOS replacement)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aos-animate');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+        });
+
+        // Counter animation
+        function animateCounters() {
+            document.querySelectorAll('.counter').forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const suffix = counter.getAttribute('data-suffix') || '';
+                const duration = 2000;
+                const step = Math.ceil(target / (duration / 16));
+                let current = 0;
+                const update = () => {
+                    current += step;
+                    if (current >= target) { current = target; }
+                    counter.textContent = current.toLocaleString() + suffix;
+                    if (current < target) requestAnimationFrame(update);
+                };
+                update();
+            });
+        }
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    counterObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.5 });
+        document.addEventListener('DOMContentLoaded', function() {
+            const counterSection = document.querySelector('.counters-section');
+            if (counterSection) counterObserver.observe(counterSection);
+        });
+
+        // Theme toggle
+        document.getElementById('themeToggle')?.addEventListener('click', function() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-bs-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+            this.querySelector('i').className = newTheme === 'dark' ? 'bi bi-moon-stars' : 'bi bi-sun';
+        });
+
+        // Product image error fallback
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'IMG' &&
+                (e.target.classList.contains('product-image') ||
+                 e.target.classList.contains('card-img-top') ||
+                 e.target.classList.contains('product-img'))) {
+                e.target.onerror = null;
+                e.target.style.display = 'none';
+                var ph = document.createElement('div');
+                ph.className = 'd-flex align-items-center justify-content-center';
+                ph.style.cssText = 'height:100%;width:100%;min-height:150px;background:var(--bg-card,#1a1a2e);border-radius:8px;';
+                ph.innerHTML = '<i class="bi bi-box-seam text-secondary" style="font-size:2.5rem;opacity:0.3;"></i>';
+                e.target.parentNode.insertBefore(ph, e.target.nextSibling);
+            }
+        }, true);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

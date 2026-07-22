@@ -1,0 +1,103 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<div class="stat-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-auto"><label class="form-label small">Period</label><select name="period" class="form-select form-select-sm" onchange="this.form.submit()"><option value="week" {% if period == 'week' %}selected{% endif %}>Last 7 Days</option><option value="month" {% if period == 'month' %}selected{% endif %}>Last 30 Days</option><option value="year" {% if period == 'year' %}selected{% endif %}>Last Year</option></select></div>
+        <div class="col-auto d-flex gap-1 align-items-end">
+            <a href="{% url 'admin_export_sales_csv' %}?period={{ period }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-filetype-csv"></i> CSV</a>
+            <a href="{% url 'admin_export_sales_excel' %}?period={{ period }}" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            <a href="{% url 'admin_export_sales_pdf' %}?period={{ period }}" class="btn btn-sm btn-outline-danger"><i class="bi bi-filetype-pdf"></i> PDF</a>
+        </div>
+    </form>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4"><div class="stat-card text-center"><h2 class="text-primary mb-1">{{ total_sales }}</h2><small class="text-muted">Total Orders</small></div></div>
+    <div class="col-md-4"><div class="stat-card text-center"><h2 class="text-success mb-1">₹{{ total_revenue|floatformat:0 }}</h2><small class="text-muted">Total Revenue</small></div></div>
+    <div class="col-md-4"><div class="stat-card text-center"><h2 class="text-info mb-1">₹{{ avg_order_value|floatformat:0 }}</h2><small class="text-muted">Avg Order Value</small></div></div>
+</div>
+
+<div class="row g-3 mt-2">
+    <div class="col-lg-6">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Sales by Day</h5>
+            <div class="chart-container"><canvas id="salesReportChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="stat-card">
+            <h5 class="mb-3"><i class="bi bi-receipt me-2"></i>Top Selling Products</h5>
+            <div class="table-container" style="max-height:350px;overflow-y:auto;">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
+                    <tbody>
+                        {% for tp in top_products %}
+                        <tr>
+                            <td>{{ tp.product_name }}</td>
+                            <td>{{ tp.total_qty }}</td>
+                            <td>₹{{ tp.total_rev|floatformat:0 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-muted text-center">No sales data</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stat-card mt-3">
+    <h5 class="mb-3"><i class="bi bi-table me-2"></i>Recent Orders
+        <span class="float-end">
+            <a href="{% url 'admin_export_products_csv' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-filetype-csv"></i></a>
+            <a href="{% url 'admin_export_products_excel' %}" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-excel"></i></a>
+        </span>
+    </h5>
+    <div class="table-container">
+        <table class="table table-sm table-hover mb-0">
+            <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td><a href="{% url 'admin_order_detail' o.pk %}">{{ o.order_id }}</a></td>
+                    <td>{{ o.name }}</td>
+                    <td>₹{{ o.total|floatformat:0 }}</td>
+                    <td><span class="badge bg-{% if o.order_status == 'DELIVERED' %}success{% elif o.order_status == 'CANCELLED' %}danger{% elif o.order_status == 'PENDING' %}warning text-dark{% else %}info{% endif %}">{{ o.get_order_status_display }}</span></td>
+                    <td><small>{{ o.created_at|date:"d M Y" }}</small></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-muted text-center">No orders in this period</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+var ctx = document.getElementById('salesReportChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [{% for s in sales_by_day %}'{{ s.day|date:"d M"|default:"" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [
+            { label: 'Orders', data: [{% for s in sales_by_day %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: 'rgba(13,110,253,0.1)', borderColor: '#0d6efd', tension: 0.3, fill: true },
+            { label: 'Revenue', data: [{% for s in sales_by_day %}{{ s.revenue|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: 'rgba(25,135,84,0.1)', borderColor: '#198754', tension: 0.3, fill: true, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y1: { beginAtZero: true, position: 'right', grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endblock %}

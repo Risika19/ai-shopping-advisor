@@ -1,0 +1,51 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Order Management{% endblock %}
+{% block content %}
+<div class="stat-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4"><input type="text" name="q" class="form-control form-control-sm" placeholder="Search by order ID, name, email..." value="{{ q }}"></div>
+        <div class="col-md-2"><select name="status" class="form-select form-select-sm"><option value="">All Status</option>{% for val, label in status_choices %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="col-md-2"><select name="pay_status" class="form-select form-select-sm"><option value="">All Payment</option>{% for val, label in pay_status_choices %}<option value="{{ val }}" {% if pay_status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="col-md-2 d-flex gap-1"><button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button><a href="{% url 'admin_orders' %}" class="btn btn-sm btn-secondary"><i class="bi bi-x-circle"></i></a></div>
+    </form>
+</div>
+<div class="stat-card">
+    <div class="table-container">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Email</th><th>Total</th><th>Method</th><th>Order Status</th><th>Payment</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td><strong>{{ o.order_id }}</strong></td>
+                    <td>{{ o.name }}<br><small class="text-muted">{{ o.user.username }}</small></td>
+                    <td><small>{{ o.email }}</small></td>
+                    <td><strong>₹{{ o.total|floatformat:0 }}</strong></td>
+                    <td><small>{{ o.get_payment_method_display }}</small></td>
+                    <td>
+                        <span class="badge status-badge bg-{% if o.order_status == 'DELIVERED' %}success{% elif o.order_status == 'CANCELLED' %}danger{% elif o.order_status == 'PENDING' %}warning text-dark{% elif o.order_status == 'CONFIRMED' %}info{% elif o.order_status == 'PACKED' %}primary{% elif o.order_status == 'SHIPPED' %}teal{% endif %}">
+                            {{ o.get_order_status_display }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-{% if o.payment_status == 'SUCCESS' %}success{% elif o.payment_status == 'FAILED' %}danger{% elif o.payment_status == 'REFUNDED' %}warning text-dark{% else %}secondary{% endif %} status-badge">{{ o.get_payment_status_display }}</span></td>
+                    <td><small class="text-muted">{{ o.created_at|date:"d M Y" }}</small></td>
+                    <td><a href="{% url 'admin_order_detail' o.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="text-center text-muted py-4">No orders found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if paginator.num_pages > 1 %}
+    <nav class="mt-3"><ul class="pagination pagination-sm justify-content-center mb-0">
+        {% if orders.has_previous %}<li class="page-item"><a class="page-link" href="?page=1{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ orders.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Prev</a></li>{% endif %}
+        {% for n in paginator.page_range %}{% if n >= orders.number|add:'-2' and n <= orders.number|add:'2' %}<li class="page-item {% if n == orders.number %}active{% endif %}"><a class="page-link" href="?page={{ n }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">{{ n }}</a></li>{% endif %}{% endfor %}
+        {% if orders.has_next %}<li class="page-item"><a class="page-link" href="?page={{ orders.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Last</a></li>{% endif %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

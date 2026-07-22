@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Products — ShopAI{% endblock %}
+{% block content %}
+
+<style>
+.product-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    overflow: hidden;
+}
+.product-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(108,99,255,0.3);
+    box-shadow: var(--shadow-glow);
+}
+.product-image-wrap {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0f;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.product-image {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    padding: 15px;
+    display: block;
+}
+.product-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem;
+    flex: 1;
+}
+.product-card .card-body .card-top {
+    flex-shrink: 0;
+}
+.product-card .card-body .card-bottom {
+    flex-shrink: 0;
+}
+</style>
+
+<div class="container mt-5 pt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-grid me-2"></i>All Products</h2>
+            <small class="text-secondary">{{ products|length }} product{{ products|length|pluralize }} found</small>
+        </div>
+        <a href="{% url 'compare_products' %}" class="btn btn-outline-premium btn-sm">
+            <i class="bi bi-arrow-left-right me-1"></i> Compare
+            {% if compare_ids|length > 0 %}<span class="badge bg-primary ms-1">{{ compare_ids|length }}</span>{% endif %}
+        </a>
+    </div>
+
+    <div class="glass-card p-4 mb-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Name or brand..." value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All</option>
+                    {% for c in categories %}
+                        <option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary">Brand</label>
+                <select name="brand" class="form-select">
+                    <option value="">All</option>
+                    {% for b in brands %}
+                        <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary">Min Price</label>
+                <input type="number" name="min_price" class="form-control" placeholder="₹0" value="{{ min_price }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary">Max Price</label>
+                <input type="number" name="max_price" class="form-control" placeholder="₹Any" value="{{ max_price }}">
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-premium"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4">
+        {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card">
+                    <div class="product-image-wrap">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                            <svg class="product-image" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a0f; padding:30px;">
+                                <rect x="30" y="30" width="140" height="140" rx="12" fill="#f0f0f5"/>
+                                <path d="M80 90l15 20 10-15 12 18h-45l8-23z" fill="#d0d0e0"/>
+                                <path d="M95 75a8 8 0 100-16 8 8 0 000 16z" fill="#d0d0e0"/>
+                                <path d="M60 110l15-25 10 15 20-30 20 40H60z" fill="#c0c0d5"/>
+                                <text x="100" y="150" text-anchor="middle" fill="#a0a0b8" font-size="11" font-family="Inter,sans-serif">{{ product.name|truncatechars:12 }}</text>
+                                <text x="100" y="168" text-anchor="middle" fill="#a0a0b8" font-size="10" font-family="Inter,sans-serif">No Image</text>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="card-top">
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary mb-1 small">{{ product.category }}</span>
+                            <h6 class="fw-bold mb-1 mt-1 text-white">{{ product.name }}</h6>
+                            <small class="text-secondary">{{ product.brand }}</small>
+                            <div class="rating-stars mt-1">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star empty"></i>{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="card-bottom mt-3">
+                            <h5 class="gradient-text fw-bold mb-2">₹{{ product.price|floatformat:0 }}</h5>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'product_detail' product.pk %}" class="btn btn-premium btn-sm flex-grow-1">View</a>
+                                <a href="{% url 'add_to_compare' %}?product_id={{ product.pk }}" class="btn btn-outline-premium btn-sm px-3">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-emoji-frown display-1 text-secondary"></i>
+                <p class="mt-3 fs-5 fw-semibold text-white">No products found</p>
+                <p class="text-secondary">Try adjusting your search or filter criteria.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-premium mt-2">Clear Filters</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
