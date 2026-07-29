@@ -18,7 +18,7 @@
             <div class="product-card">
                 <div class="position-relative">
                     {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="card-img-top" style="height:180px;object-fit:cover;">
+                    <img src="{% static item.product.image.name %}" alt="{{ item.product.name }}" class="card-img-top" style="height:180px;object-fit:cover;">
                     {% else %}
                     <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height:180px;">
                         <i class="bi bi-image text-muted fs-1"></i>

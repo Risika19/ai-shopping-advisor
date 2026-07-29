@@ -725,7 +725,7 @@ def _get_specs_list(product):
 def generate_product_card(product):
     specs = _get_specs_list(product)
     specs_str = " | ".join(specs)
-    image_url = product.image.url if product.image else '/static/images/placeholder.svg'
+    image_url = f'/static/{product.image.name}' if product.image else '/static/images/placeholder.svg'
     rating_display = f'★ {product.rating}/5' if product.rating else ''
 
     return f'''
@@ -1229,7 +1229,7 @@ def _product_details_response(message):
     specs_str = '<br>'.join(specs)
 
     price_str = f"₹{int(p.price):,}" if p.price else 'N/A'
-    img = p.image.url if p.image else '/static/images/placeholder.svg'
+    img = f'/static/{p.image.name}' if p.image else '/static/images/placeholder.svg'
     desc = p.description or ''
 
     msg = f"""

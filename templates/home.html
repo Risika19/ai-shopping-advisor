@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}ShopAI — AI-Powered Smart Shopping Advisor{% endblock %}
 {% block content %}
 
@@ -396,7 +397,7 @@
                 <div class="product-card">
                     <div class="position-relative overflow-hidden">
                         {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            <img src="{% static product.image.name %}" class="card-img-top" alt="{{ product.name }}">
                         {% else %}
                             <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
                                 <i class="bi bi-box-seam text-secondary" style="font-size: 3rem; opacity: 0.3;"></i>
@@ -441,7 +442,7 @@
                     <div class="product-card">
                         <div class="position-relative overflow-hidden">
                             {% if product.image %}
-                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                <img src="{% static product.image.name %}" class="card-img-top" alt="{{ product.name }}">
                             {% else %}
                                 <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
                                     <i class="bi bi-box-seam text-secondary" style="font-size: 2.5rem; opacity: 0.3;"></i>
@@ -484,7 +485,7 @@
                 <div class="product-card">
                     <div class="position-relative overflow-hidden">
                         {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            <img src="{% static product.image.name %}" class="card-img-top" alt="{{ product.name }}">
                         {% else %}
                             <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
                                 <i class="bi bi-box-seam text-secondary" style="font-size: 3rem; opacity: 0.3;"></i>
@@ -587,7 +588,7 @@
                     <div class="product-card">
                         <div class="position-relative overflow-hidden">
                             {% if product.image %}
-                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                <img src="{% static product.image.name %}" class="card-img-top" alt="{{ product.name }}">
                             {% else %}
                                 <div class="card-img-top d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
                                     <i class="bi bi-box-seam text-secondary" style="font-size: 2.5rem; opacity: 0.3;"></i>

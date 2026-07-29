@@ -20,12 +20,12 @@
                     <div class="col-md-4"><label class="form-label">Battery</label><input type="text" name="battery" class="form-control" value="{{ product.battery|default:'' }}" placeholder="e.g. 5000mAh"></div>
                     <div class="col-md-4"><label class="form-label">Display</label><input type="text" name="display" class="form-control" value="{{ product.display|default:'' }}" placeholder='e.g. 6.5" AMOLED'></div>
                     <div class="col-md-6"><label class="form-label">Camera</label><input type="text" name="camera" class="form-control" value="{{ product.camera|default:'' }}" placeholder="e.g. 48MP + 12MP"></div>
-                    <div class="col-md-6"><label class="form-label">Product Image</label><input type="file" name="image" class="form-control" accept="image/*">{% if product.image %}<small class="text-muted">Current: <a href="{{ product.image.url }}" target="_blank">{{ product.image.name }}</a></small>{% endif %}</div>
+                    <div class="col-md-6"><label class="form-label">Product Image</label><input type="file" name="image" class="form-control" accept="image/*">{% if product.image %}<small class="text-muted">Current: <a href="{% static product.image.name %}" target="_blank">{{ product.image.name }}</a></small>{% endif %}</div>
                     <div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ product.description|default:'' }}</textarea></div>
                     <div class="col-12"><label class="form-label">Features (comma-separated)</label><textarea name="features" class="form-control" rows="2">{{ product.features|default:'' }}</textarea></div>
                 </div>
                 {% if product and product.image %}
-                <div class="mt-3"><img src="{{ product.image.url }}" style="max-height:150px;border-radius:8px;" alt="Preview"></div>
+                <div class="mt-3"><img src="{% static product.image.name %}" style="max-height:150px;border-radius:8px;" alt="Preview"></div>
                 {% endif %}
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}Update{% else %}Create{% endif %} Product</button>

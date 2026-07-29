@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Recommendations - AI Shopping Advisor{% endblock %}
 {% block content %}
 <div class="container mt-4">
@@ -50,7 +51,7 @@
                     <div class="card border-0 h-100">
                         <div class="position-relative">
                             {% if product.image %}
-                                <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}" loading="lazy" style="height:160px;">
+                                <img src="{% static product.image.name %}" class="product-img" alt="{{ product.name }}" loading="lazy" style="height:160px;">
                             {% else %}
                                 <div class="bg-light text-center py-4 rounded-top"><i class="bi bi-image display-4 text-muted"></i></div>
                             {% endif %}
